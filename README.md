@@ -1,4 +1,4 @@
-snakeNet Json lib for Swift
+snakeNet JSON lib for Swift
 ==========
 
 snJson is a tiny and simple JSON object lib for Swift
