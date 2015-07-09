@@ -8,17 +8,19 @@
 
 import UIKit
 
-public class JsonObject: NSObject {
+public class JsonObject {
     private var mRawData = Dictionary<String, AnyObject>()
     private var mValid: Bool = false
+    private var mData =  Dictionary<String, JsonAttribute>()
     
-    public init(data: String = ""){
+    public init(str: String = ""){
         // Initialize the NSObject
-        super.init()
+        //super.init()
         
-        if( data != ""){
+        if( str != ""){
             // Parse the string into an array that we can work with
-            self.mRawData = parse(data)
+            self.mRawData = deserialize(str)
+            self.parse(self.mRawData)
         }
         else{
             // the object is just being created, so there is no need not
@@ -27,8 +29,14 @@ public class JsonObject: NSObject {
         }
     }
     
-    // Parse the JSON String into a JSON Array<String, AnyObject>
-    private func parse(jsonString: String) -> [String: AnyObject] {
+    public init(arr: Dictionary<String, AnyObject>){
+        //super.init()
+        // parse the array
+        self.parse(arr)
+    }
+    
+    // Deserialize the JSON String into a JSON Array<String, AnyObject>
+    private func deserialize(jsonString: String) -> [String: AnyObject] {
         if let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding) {
             if let dictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(0), error: nil)  as? [String: AnyObject] {
                 return dictionary
@@ -37,64 +45,77 @@ public class JsonObject: NSObject {
         return [String: AnyObject]()
     }
     
-    // to add a String "Hello": "World"
-    public func addString(key: String, val: String){
-        self.mRawData[key] = val as AnyObject
+    private func parse(data: Dictionary<String, AnyObject>){
+        for(key, val) in data {
+            // if its Integer castable
+            if let iVal = val as? Int {
+                mData[key] = JsonAttribute(val: val, type: JsonType.Integer)
+            }
+            
+            if let sVal = val as? String {
+                mData[key] = JsonAttribute(val: val, type: JsonType.String)
+            }
+            
+            if let oVal = val as? Dictionary<String, AnyObject> {
+                mData[key] = JsonAttribute(val: JsonObject(arr: val as! Dictionary<String, AnyObject>), type: JsonType.Object)
+            }
+            
+            if let liVal = val as? [Int] {
+                mData[key] = JsonAttribute(val: val, type: JsonType.IntegerList)
+            }
+            
+            if let lsVal = val as? [String] {
+                mData[key] = JsonAttribute(val: val, type: JsonType.StringList)
+            }
+        }
+        
+        self.mValid = true;
     }
     
-    // to add an Integer "Meaning of life": 42
-    public func addInt(key: String, val: Int){
-        self.mRawData[key] = val as AnyObject
-    }
-    
-    // add an object into the object {"Animal": "Snake", "Species": "Boa"}
-    public func addArr(key: String, val: AnyObject){
-        let data = asArray(key, val: val);
-        self.mRawData[data.key] = data.val
+    // add a new object
+    public func add(key: String, val: AnyObject){
+        // Type check
+        if let iVal = val as? Int {
+            self.mData[key] = JsonAttribute(val: val, type: JsonType.Integer)
+        }
+        if let sVal = val as? String {
+            self.mData[key] = JsonAttribute(val: val, type: JsonType.String)
+        }
+        if let oVal = val as? JsonObject {
+            self.mData[key] = JsonAttribute(val: val, type: JsonType.Object)
+        }
+        if let liVal = val as? [Int] {
+            self.mData[key] = JsonAttribute(val: val, type: JsonType.IntegerList)
+        }
+        if let lsVal = val as? [String] {
+            self.mData[key] = JsonAttribute(val: val, type: JsonType.StringList)
+        }
      }
     
     // get the JsonString
     public func getJsonString() -> String{
-        return serialize(self.mRawData)
+        return serialize()
     }
     
-    // get a String out of the json object "Hello": "World" => getString("Hello") -> "world"
-    // or reeturn "" if no key with that value is avaliable
-    public func getString(key: String) -> String!{
-        if let val = self.mRawData[key] as? String {
-            return self.mRawData[key] as! String
+    // get the Array that represents this Json Object
+    public func getJsonArray() -> Dictionary<String, AnyObject>{
+        var data = Dictionary<String, AnyObject>()
+        for( key, val ) in mData {
+            if( val.type == JsonType.Object ){
+                let d: JsonObject = val.value()!
+                data[key] = d.getJsonArray()
+            }
+            else{
+                data[key] = val.val
+             }
         }
-        else{
-            // if there is no string with this key, return an empty string
-            return ""
-        }
-    }
-    
-    // get an integer at key position or return nil if no such key
-    // has an integer value
-    public func getInt(key: String) -> Int!{
-        if let val = self.mRawData[key] as? Int {
-            return self.mRawData[key] as! Int
-        }
-        else{
-            return nil
-        }
-    }
-    
-    // get an array with a key or return an empty array if no such key as
-    // an array value
-    public func getArr(key: String) -> Dictionary<String, AnyObject>!{
-        if let val = self.mRawData[key] as? Dictionary<String, AnyObject> {
-            return self.mRawData[key] as! Dictionary<String, AnyObject>
-        }
-        else{
-            return [:]
-        }
+        
+        return data
     }
     
     // universal get function. You should know yourself whats comming out
-    public func get(key: String) -> AnyObject{
-        return self.mRawData[key]!
+    public func get(key: String) -> JsonAttribute{
+        return self.mData[key]!
     }
     
     // report if this object is a valid JSON object
@@ -132,7 +153,9 @@ public class JsonObject: NSObject {
     }
     
     // use Json Serialization
-    private func serialize(value: AnyObject, prettyPrinted: Bool = false) -> String {
+    private func serialize(prettyPrinted: Bool = false) -> String {
+        var value = self.getJsonArray()
+        
         var options = prettyPrinted ? NSJSONWritingOptions.PrettyPrinted : nil
         if NSJSONSerialization.isValidJSONObject(value) {
             if let data = NSJSONSerialization.dataWithJSONObject(value, options: options, error: nil) {

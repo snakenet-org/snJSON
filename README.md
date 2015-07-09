@@ -6,45 +6,118 @@ Tiny and simple JSON object lib for swift
 Usage
 -----
 
-This tiny library is meant to simplify the use of JSON in Swift. The Interface to the objects is very simple.
-Just add [snJson/JsonObject.swift] or import the snJson Library
+This tiny library is meant to simplify the use of JSON in Swift with no dependencies. The Interface to the objects is very simple.
+Just import the snJson Library:
 
-[snJson/JsonObject.swift]: ./snJson/JsonObject.swift
+import snJson
 
-Synopsis
+Usage
+===========
+
+Reading
 --------
 
-How to parse a string into an object
+After parsing, the object will presnt you with to different ways to access the data.
+1. via the .val attribute on each element
+    for instance 
 
 ````swift
-    let testString = "{\"Name\": \"Jane Doe\", \"Url\": \"http://snakenet.org/\", \"Age\": 24, \"Parents\": {\"Mother\": \"Johanna Doe\", \"Father\": \"John Doe\"}}"
-    
-    let tJson = JsonObject(data: testString)
-    
-    let t1 = tJson.getString("Name")
-    let t2 = tJson.getString("Url")
-    let t3 = tJson.getInt("Age")
-    let t4 = tJson.getArr("Parents")
-    
-    println("Name: \(t1)")
-    println("Url: \(t2)")
-    println("Age: \(t3)")
-    println("Arr: \(t4)")
+    let test = json.get("test").val as! String
+````
+    if you use the .val attribute you need to unwrap the type by yourself though.
+
+2. via the .value() member of each element
+    for example 
+````swift
+    let test: String = json.get("test").value()
 ````
 
-How to parse an object into a string
+Here are some test cases:
+````swift
+    // example string
+    var jString = "{\"Name\": \"Jane Doe\", \"Url\": \"http://snakenet.org/\", \"Age\": 24, \"Parents\": {\"Mother\": \"Johanna Doe\", \"Father\": \"John Doe\"}, \"List\": [1, 2, 5, 3, 6, 3, 7], \"Aliases\": [\"Jack\", \"Jim\", \"James\"]}"
+    
+    // example Object (read)
+    var jTest1 = JsonObject(str: jString)
+    
+    // you can get each value via the .val attribite. But you need to unwrap it
+    // by yourself
+    let name = jTest1.get("Name").val as! String
+    
+    // with inpicit data types
+    let list = jTest1.get("List").array()
+    
+    // with explicit data types
+    let url: String = jTest1.get("Url").string()!
+    
+    // not unwrapped
+    let id: Int? = jTest1.get("Age").value()
+    
+    // unwrapped
+    let aliases: [String] = jTest1.get("Aliases").array()! as! [String]
+
+    // multiple objects in one object
+    let FatherName: String = jTest1.get("Parents").value()!.get("Father").value()!
+    
+    // test
+    println("URL: \(url)")  
+    println("Person: \(name): \(id)")
+    println("Father: \(FatherName)")
+    println("List: \(list)")
+    println("Aliases: \(aliases)")
+
+    /* Output:
+        URL: http://snakenet.org/
+        Person: Jane Doe: Optional(24)
+        Father: John Doe
+        List: Optional((
+            1,
+            2,
+            5,
+            3,
+            6,
+            3,
+            7
+        ))
+        Aliases: [Jack, Jim, James]
+    */
+````
+
+Writing
+--------
+
+Write into a new Object is equally straight forward:
 
 ````swift
-    var tJson2 = JsonObject()
-    tJson2.addString("Snake", val: "Boa")
-    tJson2.addString("Aqua", val: "Adder")
-    tJson2.addInt("Major", val: 1)
-    tJson2.addArr("Version", val: ["Major": 1, "Minor": 1, "Patch": 0])
-    
-    println("Test2: \(tJson2.getJsonString())")
+    var jTest2 = JsonObject()
+    var person = JsonObject()
+    person.add("Name", val: "Marc Fiedler")
+    person.add("Url", val: "http://snakeNet.org/")
+
+    jTest2.add("Type", val: "Tree")
+    jTest2.add("Count", val: 2)
+    jTest2.add("Person", val: person)
+
+    println("\(jTest2.getJsonString())")
+
+    /* Output:
+        {"Type":"Tree","Count":2,"Person":{"Name":"Marc Fiedler","Url":"http:\/\/snakeNet.org\/"}}
+    */
 ````
 
+Error Handling
+--------
 Error handling has not yet been implemented, but I will keep the lib Swift2 compatible and with the changes to Swift I will also improve the lib.
+
+````swift
+    if( jTest1.isValid() ){
+        //...
+    }
+    else{
+        println("Unable to read JSON string")
+    }
+````
+
 
 Copywrite
 ===========
