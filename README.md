@@ -1,7 +1,7 @@
-snakeNet Json (snJson)
+snakeNet Json lib for Swift
 ==========
 
-Tiny and simple JSON object lib for swift
+snJson is a tiny and simple JSON object lib for Swift
 
 Usage
 -----
@@ -9,7 +9,9 @@ Usage
 This tiny library is meant to simplify the use of JSON in Swift with no dependencies. The Interface to the objects is very simple.
 Just import the snJson Library:
 
-import snJson
+````swift
+    import snJson
+````
 
 Usage
 ===========
@@ -17,17 +19,14 @@ Usage
 Reading
 --------
 
-After parsing, the object will presnt you with to different ways to access the data.
-1. via the .val attribute on each element
-    for instance 
+After parsing, the object will presnt you with to different ways to access the data. Firstly via the .val attribute on each element. For instance: 
 
 ````swift
     let test = json.get("test").val as! String
 ````
-    if you use the .val attribute you need to unwrap the type by yourself though.
 
-2. via the .value() member of each element
-    for example 
+if you use the .val attribute you need to unwrap the type by yourself though. Secondly via the .value() member of each element. For example
+
 ````swift
     let test: String = json.get("test").value()
 ````
