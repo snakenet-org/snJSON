@@ -10,6 +10,7 @@
 		DF72E1F21B4E6E2D004C95BC /* snJson.h in Headers */ = {isa = PBXBuildFile; fileRef = DF72E1F11B4E6E2D004C95BC /* snJson.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DF72E1F81B4E6E2D004C95BC /* snJson.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF72E1EC1B4E6E2D004C95BC /* snJson.framework */; };
 		DF72E1FF1B4E6E2D004C95BC /* snJsonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF72E1FE1B4E6E2D004C95BC /* snJsonTests.swift */; };
+		DF72E2091B4E6E56004C95BC /* JsonObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF72E2081B4E6E56004C95BC /* JsonObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		DF72E1F71B4E6E2D004C95BC /* snJsonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = snJsonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF72E1FD1B4E6E2D004C95BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DF72E1FE1B4E6E2D004C95BC /* snJsonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snJsonTests.swift; sourceTree = "<group>"; };
+		DF72E2081B4E6E56004C95BC /* JsonObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				DF72E1F11B4E6E2D004C95BC /* snJson.h */,
+				DF72E2081B4E6E56004C95BC /* JsonObject.swift */,
 				DF72E1EF1B4E6E2D004C95BC /* Supporting Files */,
 			);
 			path = snJson;
@@ -163,6 +166,7 @@
 				TargetAttributes = {
 					DF72E1EB1B4E6E2D004C95BC = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = BD855799HU;
 					};
 					DF72E1F61B4E6E2D004C95BC = {
 						CreatedOnToolsVersion = 6.4;
@@ -209,6 +213,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF72E2091B4E6E56004C95BC /* JsonObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +328,8 @@
 		DF72E2031B4E6E2D004C95BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -332,12 +339,15 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		DF72E2041B4E6E2D004C95BC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
