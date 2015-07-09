@@ -3,7 +3,7 @@ snakeNet JSON lib for Swift
 
 snJson is a tiny and simple JSON object lib for Swift
 
-Usage
+Import
 -----
 
 This tiny library is meant to simplify the use of JSON in Swift with no dependencies. The Interface to the objects is very simple.
@@ -19,7 +19,7 @@ Usage
 Reading
 --------
 
-After parsing, the object will presnt you with to different ways to access the data. Firstly via the .val attribute on each element. For instance: 
+After parsing, the object will present you with two different ways to access the data. Firstly via the .val attribute on each element. For instance: 
 
 ````swift
     let test = json.get("test").val as! String
@@ -85,7 +85,7 @@ Here are some test cases:
 Writing
 --------
 
-Write into a new Object is equally straight forward:
+To write into a new object is equally straight forward:
 
 ````swift
     var jTest2 = JsonObject()
@@ -106,7 +106,7 @@ Write into a new Object is equally straight forward:
 
 Error Handling
 --------
-Error handling has not yet been implemented, but I will keep the lib Swift2 compatible and with the changes to Swift I will also improve the lib.
+Error handling has not yet been implemented, but I will keep the lib Swift 2.0 compatible and with the changes to the Swift language I will also improve the lib.
 
 ````swift
     if( jTest1.isValid() ){
@@ -121,6 +121,6 @@ Error handling has not yet been implemented, but I will keep the lib Swift2 comp
 Copywrite
 ===========
 
-[page/snakeNet.org]
+[snakeNet.org]
 
-[page/snakenet.org]: http://snakenet.org/
+[snakenet.org]: http://snakenet.org/
