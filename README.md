@@ -1,7 +1,7 @@
 snakeNet Json (snJson)
 ==========
 
-Tiny JSON object lib for swift
+Tiny and simple JSON object lib for swift
 
 Usage
 -----
