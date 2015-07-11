@@ -1,7 +1,7 @@
 snakeNet's JSON lib for Swift
 ==========
 
-snJson is a tiny and simple JSON object lib for Appl's' Swift >= 1.2
+snJson is a tiny and simple JSON object lib for Appl's' Swift >= 1.2. 
 snJson also provides you with a very simple HTTP request service (JsonService)
 
 Import
