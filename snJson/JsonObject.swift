@@ -41,8 +41,8 @@ public class JsonObject {
         }
     }
     
-    public init(data: AnyObject?){
-        parse(data)
+    public init(obj: AnyObject?){
+        parse(obj)
     }
 
     private func serialize(data: NSData){

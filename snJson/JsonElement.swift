@@ -56,13 +56,13 @@ public class JsonElement: NSObject {
         if let aVal = val as? NSArray {
             type = Types.Array
             self.array = (val as! NSArray)
-            self.object = JsonObject(data: val as! NSArray)
+            self.object = JsonObject(obj: val as! NSArray)
         }
         
         if let dVal = val as? NSDictionary {
             type = Types.Dictionary
             self.dict = (val as! NSDictionary)
-            self.object = JsonObject(data: val as! NSDictionary)
+            self.object = JsonObject(obj: val as! NSDictionary)
         }
         
         // check if a type was assigned or not

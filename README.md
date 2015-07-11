@@ -1,7 +1,8 @@
-snakeNet JSON lib for Swift
+snakeNet's JSON lib for Swift
 ==========
 
-snJson is a tiny and simple JSON object lib for Swift
+snJson is a tiny and simple JSON object lib for Appl's' Swift >= 1.2
+snJson also provides you with a very simple HTTP request service (JsonService)
 
 Import
 -----
@@ -133,6 +134,54 @@ To write into a new object is equally straight forward:
             }
         }
 
+    */
+````
+
+Simple Networking
+--------
+snJson also comes with a very simple networking interface. You can make HTTP requests with it that will reply with JSON
+
+````swift
+    /* Somewhere in this context */
+    func reply(data: JsonObject){
+        println("Data: \(data.getJsonString())")
+    }
+````
+
+````swift
+    /* in some other function */
+
+    var jService = JsonService()
+    jService.request("http://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1", success: reply, error: nil)
+    
+    // you can also add an error callback. It will provice you with an NSError: (NSError)->()
+
+    /* Output
+    Data: {
+        "Plot" : "Jon Arryn, the Hand of the King, is dead. King Robert Baratheon plans to ask his oldest friend, Eddard Stark, to take Jon's place. Across the sea, Viserys Targaryen plans to wed his sister to a nomadic warlord in exchange for an army.",
+        "Year" : "2011",
+        "Runtime" : "62 min",
+        "Rated" : "TV-MA",
+        "Awards" : "N\/A",
+        "Season" : "1",
+        "Response" : "True",
+        "Genre" : "Adventure, Drama, Fantasy",
+        "Poster" : "http:\/\/ia.media-imdb.com\/images\/M\/MV5BMTk5MDU3OTkzMF5BMl5BanBnXkFtZTcwOTc0ODg5NA@@._V1_SX300.jpg",
+        "Type" : "episode",
+        "imdbRating" : "8.5",
+        "Title" : "Winter Is Coming",
+        "seriesID" : "tt0944947",
+        "Episode" : "1",
+        "Director" : "Timothy Van Patten",
+        "Writer" : "David Benioff (created by), D.B. Weiss (created by), George R.R. Martin (\"A Song of Ice and Fire\" by), David Benioff, D.B. Weiss",
+        "Metascore" : "N\/A",
+        "imdbVotes" : "12584",
+        "Country" : "USA",
+        "Language" : "English",
+        "imdbID" : "tt1480055",
+        "Actors" : "Sean Bean, Mark Addy, Nikolaj Coster-Waldau, Michelle Fairley",
+        "Released" : "17 Apr 2011"
+    }
     */
 ````
 
