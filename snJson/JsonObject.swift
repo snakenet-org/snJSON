@@ -94,18 +94,23 @@ public class JsonObject {
             typeAssigned = true
         }
         
+        if let dVal = val as? Double {
+            mData[key] = JsonElement(val: val, type: JsonElement.Types.Double)
+            typeAssigned = true
+        }
+        
         if let sVal = val as? String {
             mData[key] = JsonElement(val: val, type: JsonElement.Types.String)
             typeAssigned = true
         }
         
         if let aVal = val as? NSArray {
-            mData[key] = JsonElement(val: JsonObject(data: val), type: JsonElement.Types.Array)
+            mData[key] = JsonElement(val: val, type: JsonElement.Types.Array)
             typeAssigned = true
         }
         
         if let dVal = val as? NSDictionary {
-            mData[key] = JsonElement(val: JsonObject(data: val), type: JsonElement.Types.Dictionary)
+            mData[key] = JsonElement(val: val, type: JsonElement.Types.Dictionary)
             typeAssigned = true
         }
         
