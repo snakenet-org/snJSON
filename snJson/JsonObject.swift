@@ -24,33 +24,37 @@ public class JsonObject {
         mValid = true
     }
     
+    public init(data: NSData){
+        serialize(data)
+    }
+    
     public init(str: NSString){
-        serialize(str)
+        // convert the NSString to NSData (for JSONObjectWithData, if that works, serialize the string
+        if let data = str.dataUsingEncoding(NSUTF8StringEncoding) {
+            serialize(data)
+        }
+        else{
+            mValid = false
+            mError = NSError(domain: "JsonObject", code: JsonErrors.DataNotConvertable, userInfo: nil)
+        }
     }
     
     public init(data: AnyObject?){
         parse(data)
     }
 
-    private func serialize(str: NSString){
+    private func serialize(data: NSData){
         var error:NSError?
-        // convert the NSString to NSData (for JSONObjectWithData, if that works, serialize the string
-        if let data = str.dataUsingEncoding(NSUTF8StringEncoding) {
-            // get the data out of the NSString and serialize it correctly
-            var jsonData: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: &error)
+        // get the data out of the NSString and serialize it correctly
+        var jsonData: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: &error)
             
-            if let anError = error {
-                // something went wrong!
-                mValid = false
-                mError = error
-            }
-            else{
-                parse(jsonData)
-            }
+        if let anError = error {
+            // something went wrong!
+            mValid = false
+            mError = error
         }
         else{
-            mValid = false
-            mError = NSError(domain: "JsonObject", code: JsonErrors.DataNotConvertable, userInfo: nil)
+            parse(jsonData)
         }
     }
     
