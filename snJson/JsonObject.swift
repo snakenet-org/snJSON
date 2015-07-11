@@ -9,6 +9,8 @@
 import UIKit
 
 public class JsonObject {
+    public static let mVersion = 1
+    
     private var mValid: Bool!
     private var mError: NSError?
     private var mData = Dictionary<String, JsonElement>()
