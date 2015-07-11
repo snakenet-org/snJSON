@@ -19,67 +19,82 @@ Usage
 Reading
 --------
 
-After parsing, the object will present you with two different ways to access the data. Firstly via the .val attribute on each element. For instance: 
+Example Json String:
 
 ````swift
-    let test = json.get("test").val as! String
-````
-
-if you use the .val attribute you need to unwrap the type by yourself though. Secondly via the .value() member of each element. For example
-
-````swift
-    let test: String = json.get("test").value()
-````
-
-Here are some test cases:
-````swift
-    // example string
     var jString = "{\"Name\": \"Jane Doe\", \"Url\": \"http://snakenet.org/\", \"Age\": 24, \"Parents\": {\"Mother\": \"Johanna Doe\", \"Father\": \"John Doe\"}, \"List\": [1, 2, 5, 3, 6, 3, 7], \"Aliases\": [\"Jack\", \"Jim\", \"James\"]}"
-    
-    // example Object (read)
-    var jTest1 = JsonObject(str: jString)
-    
-    // you can get each value via the .val attribite. But you need to unwrap it
-    // by yourself
-    let name = jTest1.get("Name").val as! String
-    
-    // with inpicit data types
-    let list = jTest1.get("List").array()
-    
-    // with explicit data types
-    let url: String = jTest1.get("Url").string()!
-    
-    // not unwrapped
-    let id: Int? = jTest1.get("Age").value()
-    
-    // unwrapped
-    let aliases: [String] = jTest1.get("Aliases").array()! as! [String]
 
-    // multiple objects in one object
-    let FatherName: String = jTest1.get("Parents").value()!.get("Father").value()!
-    
-    // test
-    println("URL: \(url)")  
-    println("Person: \(name): \(id)")
-    println("Father: \(FatherName)")
+    let test = JsonObject(str: jString)
+````
+
+Ater the object is created you can access the different fields via the .string, .int, .double, .array or .dict members
+
+````swift
+    let name: String = test.get("Name")!.string!
+
+    let age: Int = test.get("Age")!.int!
+
+    let mother = test.get("Parents")?.object!.get("Mother")!.string
+````
+
+If you have nested elements, you can choose to directly access them or let the JsonElement class handle it
+
+````swift
+    // without JsonElement
+    let parents:NSDictionary = test.get("Parents")!.dict!
+    let father: String = parents["Father"] as! String
+
+    // with JsonElement
+    let mother = test.get("Parents")?.object!.get("Mother")!.string
+
+let list = test.get("List")!.array!
+````
+
+The same applies for arrays
+
+````swift
+    let list = test.get("List")!.array!
+````
+
+You can turn any JsonObject back into a string with the .getJsonString() memner
+
+````swift
+    println("Name: \(name) - Age: \(age).")
+    println("Mother: \(mother)")
+    println("Father: \(father)")
     println("List: \(list)")
-    println("Aliases: \(aliases)")
+
+    println("Data: \(test.getJsonString())")
 
     /* Output:
-        URL: http://snakenet.org/
-        Person: Jane Doe: Optional(24)
+        Name: Jane Doe - Age: 24.
+        Mother: Optional("Johanna Doe")
         Father: John Doe
-        List: Optional((
-            1,
-            2,
-            5,
-            3,
-            6,
-            3,
-            7
-        ))
-        Aliases: [Jack, Jim, James]
-    */
+        List: ( 1, 2, 5, 3, 6, 3, 7 )
+        Data: {
+            "Name" : "Jane Doe",
+            "Aliases" : {
+                "0" : "Jack",
+                "1" : "Jim",
+                "2" : "James"
+            },
+            "List" : {
+                "2" : 5,
+                "1" : 2,
+                "6" : 7,
+                "3" : 3,
+                "4" : 6,
+                "0" : 1,
+                "5" : 3
+            },
+            "Parents" : {
+                "Father" : "John Doe",
+                "Mother" : "Johanna Doe"
+            },
+            "Url" : "http:\/\/snakenet.org\/",
+            "Age" : 24
+        }
+*/
 ````
 
 Writing
@@ -88,32 +103,55 @@ Writing
 To write into a new object is equally straight forward:
 
 ````swift
-    var jTest2 = JsonObject()
-    var person = JsonObject()
-    person.add("Name", val: "Marc Fiedler")
-    person.add("Url", val: "http://snakeNet.org/")
+    let myList = ["Apple", "Microsoft", "Sony", "Samsung"]
+    let myDict = [
+        "Microsoft": "XBox",
+        "Sony": "Playstation",
+        "Nintendo": "Wii"
+    ]
 
-    jTest2.add("Type", val: "Tree")
-    jTest2.add("Count", val: 2)
-    jTest2.add("Person", val: person)
+    var jTest = JsonObject()
 
-    println("\(jTest2.getJsonString())")
+    jTest.set("myName", val: "Marc Fiedler")
+    jTest.set("myUrl", val: "Http://snakenet.org")
+    jTest.set("PhoneBrands", val: myList)
+    jTest.set("Consoles", val: myDict)
+
+    println("Data: \(jTest.getJsonString())")
 
     /* Output:
-        {"Type":"Tree","Count":2,"Person":{"Name":"Marc Fiedler","Url":"http:\/\/snakeNet.org\/"}}
+        Data: 
+        {
+            "Consoles" : {
+                "Sony" : "Playstation",
+                "Nintendo" : "Wii",
+                "Microsoft" : "XBox"
+            },
+            "myUrl" : "Http:\/\/snakenet.org",
+            "myName" : "Marc Fiedler",
+            "PhoneBrands" : {
+                "2" : "Sony",
+                "1" : "Microsoft",
+                "0" : "Apple",
+                "3" : "Samsung"
+            }
+        }
+
     */
 ````
 
 Error Handling
 --------
-Error handling has not yet been implemented, but I will keep the lib Swift 2.0 compatible and with the changes to the Swift language I will also improve the lib.
+Errors are handles on a per-element basis. If something goes wrong while parsing or an element if of a type that is not supported .isValid() will return false and .getError() will provide you with an NSError
 
 ````swift
-    if( jTest1.isValid() ){
-        //...
+    let test = JsonObject(str: jString)
+    
+    if( !test.isValid() ){
+        println("Test Error: \(test.getError())")
     }
     else{
-        println("Unable to read JSON string")
+        // go on
     }
 ````
 
@@ -121,6 +159,6 @@ Error handling has not yet been implemented, but I will keep the lib Swift 2.0 c
 Copywrite
 ===========
 
-[snakeNet.org]
+(c) 2015 Marc Fiedler for [snakeNet.org] 
 
 [snakenet.org]: http://snakenet.org/

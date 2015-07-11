@@ -88,33 +88,41 @@ public class JsonObject {
     
     // catalogue a key/value pair into mData
     private func catalogue(key: String, val: AnyObject) -> Bool{
-        var typeAssigned = false
-        if let iVal = val as? Int {
-            mData[key] = JsonElement(val: val, type: JsonElement.Types.Integer)
-            typeAssigned = true
+        mData[key] = JsonElement(val: val)
+        return mData[key]!.valid
+    }
+    
+    public func getJsonArray() -> Dictionary<String, AnyObject>{
+        var jsonArray = Dictionary<String, AnyObject>()
+        
+        for( key, val ) in mData {
+            if val.type == JsonElement.Types.Dictionary {
+                jsonArray[key] = val.object!.getJsonArray()
+            }
+            else if val.type == JsonElement.Types.Array {
+                jsonArray[key] = val.object!.getJsonArray()
+            }
+            else{
+                jsonArray[key] = val.val
+            }
         }
         
-        if let dVal = val as? Double {
-            mData[key] = JsonElement(val: val, type: JsonElement.Types.Double)
-            typeAssigned = true
+        return jsonArray
+    }
+    
+    public func getJsonString() -> String {
+        var jsonString: String = String()
+        var jsonArray = getJsonArray()
+        
+        if NSJSONSerialization.isValidJSONObject(jsonArray) {
+            if let data = NSJSONSerialization.dataWithJSONObject(jsonArray, options: NSJSONWritingOptions.PrettyPrinted, error: nil) {
+                if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
+                    jsonString = string as String
+                }
+            }
         }
         
-        if let sVal = val as? String {
-            mData[key] = JsonElement(val: val, type: JsonElement.Types.String)
-            typeAssigned = true
-        }
-        
-        if let aVal = val as? NSArray {
-            mData[key] = JsonElement(val: val, type: JsonElement.Types.Array)
-            typeAssigned = true
-        }
-        
-        if let dVal = val as? NSDictionary {
-            mData[key] = JsonElement(val: val, type: JsonElement.Types.Dictionary)
-            typeAssigned = true
-        }
-        
-        return typeAssigned
+        return jsonString
     }
     
     public func get(key: String) -> JsonElement? {
@@ -123,6 +131,10 @@ public class JsonObject {
     
     public func getError() -> NSError? {
         return mError
+    }
+    
+    public func set(key: String, val: AnyObject){
+        mData[key] = JsonElement(val: val)
     }
     
     public func isValid() -> Bool {

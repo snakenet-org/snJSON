@@ -10,8 +10,8 @@ import UIKit
 
 public class JsonElement: NSObject {
     public let val: AnyObject!
-    public let type: Int!
     
+    public var type: Int!
     public var valid: Bool!
     
     public var string: String?
@@ -19,10 +19,12 @@ public class JsonElement: NSObject {
     public var double: Double?
     public var array: NSArray?
     public var dict: NSDictionary?
+    public var object: JsonObject?
     
     public struct Types{
         // mostly for the value part of a pair or a value
         // part of an Array or a Dict
+        public static let Unkniwn: Int = -1
         public static let Integer: Int = 1
         public static let String: Int = 2
         public static let Double: Int = 3
@@ -30,29 +32,48 @@ public class JsonElement: NSObject {
         public static let Dictionary: Int = 5
     }
     
-    public init(val: AnyObject, type: Int){
+    public init(val: AnyObject){
         self.val = val
-        self.type = type
-
-        switch type{
-            case Types.Integer:
-                self.int = (val as! Int)
-                // while we are at it, convert the int also to a string
-                self.string = String( val as! Int )
-            case Types.Double:
-                self.double = (val as! Double)
-                self.string = String( stringInterpolationSegment: val as! Double)
-            case Types.String:
-                self.string = (val as! String)
-            case Types.Dictionary:
-                self.dict = NSDictionary()
-                for( key, val ) in (val as! NSDictionary){
-                    self.dict[key] = JsonElement(val: val, type: 1)
-                }
-            case Types.Array:
-            
+        
+        if let iVal = val as? Int {
+            type = Types.Integer
+            self.int = (val as! Int)
+            // while we are at it, convert the int also to a string
+            self.string = String( val as! Int )
         }
         
+        if let dVal = val as? Double {
+            type = Types.Double
+            self.double = (val as! Double)
+            self.string = String( stringInterpolationSegment: val as! Double)
+        }
+        
+        if let sVal = val as? String {
+            type = Types.String
+            self.string = (val as! String)
+        }
+        
+        if let aVal = val as? NSArray {
+            type = Types.Array
+            self.array = (val as! NSArray)
+            self.object = JsonObject(data: val as! NSArray)
+        }
+        
+        if let dVal = val as? NSDictionary {
+            type = Types.Dictionary
+            self.dict = (val as! NSDictionary)
+            self.object = JsonObject(data: val as! NSDictionary)
+        }
+        
+        // check if a type was assigned or not
+        if let tType = type {
+            valid = true
+        }
+        else{
+            type = Types.Unkniwn
+            valid = false
+        }
+
         super.init()
     }
 }
