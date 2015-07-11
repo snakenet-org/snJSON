@@ -31,9 +31,7 @@ Ater the object is created you can access the different fields via the .string, 
 
 ````swift
     let name: String = test.get("Name")!.string!
-
     let age: Int = test.get("Age")!.int!
-
     let mother = test.get("Parents")?.object!.get("Mother")!.string
 ````
 
@@ -46,8 +44,6 @@ If you have nested elements, you can choose to directly access them or let the J
 
     // with JsonElement
     let mother = test.get("Parents")?.object!.get("Mother")!.string
-
-let list = test.get("List")!.array!
 ````
 
 The same applies for arrays
@@ -56,7 +52,7 @@ The same applies for arrays
     let list = test.get("List")!.array!
 ````
 
-You can turn any JsonObject back into a string with the .getJsonString() memner
+You can turn any JsonObject back into a string with the .getJsonString() member
 
 ````swift
     println("Name: \(name) - Age: \(age).")
