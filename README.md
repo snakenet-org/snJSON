@@ -31,26 +31,26 @@ Example Json String:
 Ater the object is created you can access the different fields via the .string, .int, .double, .array or .dict members
 
 ````swift
-    let name: String = test.get("Name")!.string!
-    let age: Int = test.get("Age")!.int!
-    let mother = test.get("Parents")?.object!.get("Mother")!.string
+    let name: String = test["Name"]!.string!
+    let age: Int = test["Age"]!.int!
+    let mother = test["Parents"]?.object!["Mother"]!.string
 ````
 
 If you have nested elements, you can choose to directly access them or let the JsonElement class handle it
 
 ````swift
     // without JsonElement
-    let parents:NSDictionary = test.get("Parents")!.dict!
+    let parents:NSDictionary = test["Parents"]!.dict!
     let father: String = parents["Father"] as! String
 
     // with JsonElement
-    let mother = test.get("Parents")?.object!.get("Mother")!.string
+    let mother = test["Parents"]?.object!["Mother"]!.string
 ````
 
 The same applies for arrays
 
 ````swift
-    let list = test.get("List")!.array!
+    let list = test["List"]!.array!
 ````
 
 You can turn any JsonObject back into a string with the .getJsonString() member
@@ -108,8 +108,11 @@ To write into a new object is equally straight forward:
     ]
 
     var jTest = JsonObject()
+    
+    // with subscript
+    jTest["myName"] = "Marc Fiedler"
 
-    jTest.set("myName", val: "Marc Fiedler")
+    // without subscript
     jTest.set("myUrl", val: "Http://snakenet.org")
     jTest.set("PhoneBrands", val: myList)
     jTest.set("Consoles", val: myDict)

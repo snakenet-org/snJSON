@@ -9,7 +9,7 @@
 import UIKit
 
 public class JsonObject {
-    public static let mVersion = 1
+    public static let version = 2
     
     private var mValid: Bool!
     private var mError: NSError?
@@ -129,6 +129,22 @@ public class JsonObject {
         }
         
         return jsonString
+    }
+    
+    public subscript(key: String) -> JsonElement? {
+        get{
+            return mData[key]
+        }
+    }
+
+    public subscript(key: String) -> AnyObject? {
+        get {
+            return mData[key]?.val
+        }
+        
+        set(val){
+            set(key, val: val!)
+        }
     }
     
     public func get(key: String) -> JsonElement? {
