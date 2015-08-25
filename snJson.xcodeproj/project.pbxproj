@@ -12,7 +12,6 @@
 		DF72E1FF1B4E6E2D004C95BC /* snJsonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF72E1FE1B4E6E2D004C95BC /* snJsonTests.swift */; };
 		DF72E2091B4E6E56004C95BC /* JsonObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF72E2081B4E6E56004C95BC /* JsonObject.swift */; };
 		DFD52A6E1B51228E0094D8C4 /* JsonService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD52A6D1B51228E0094D8C4 /* JsonService.swift */; };
-		DFEDE9C21B4E8FD8001B53C3 /* JsonElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFEDE9C11B4E8FD7001B53C3 /* JsonElement.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,7 +33,6 @@
 		DF72E1FE1B4E6E2D004C95BC /* snJsonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snJsonTests.swift; sourceTree = "<group>"; };
 		DF72E2081B4E6E56004C95BC /* JsonObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonObject.swift; sourceTree = "<group>"; };
 		DFD52A6D1B51228E0094D8C4 /* JsonService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonService.swift; sourceTree = "<group>"; };
-		DFEDE9C11B4E8FD7001B53C3 /* JsonElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonElement.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +78,6 @@
 				DF72E1F11B4E6E2D004C95BC /* snJson.h */,
 				DF72E2081B4E6E56004C95BC /* JsonObject.swift */,
 				DFD52A6D1B51228E0094D8C4 /* JsonService.swift */,
-				DFEDE9C11B4E8FD7001B53C3 /* JsonElement.swift */,
 				DF72E1EF1B4E6E2D004C95BC /* Supporting Files */,
 			);
 			path = snJson;
@@ -221,7 +218,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFEDE9C21B4E8FD8001B53C3 /* JsonElement.swift in Sources */,
 				DF72E2091B4E6E56004C95BC /* JsonObject.swift in Sources */,
 				DFD52A6E1B51228E0094D8C4 /* JsonService.swift in Sources */,
 			);
@@ -346,10 +342,13 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = snJson/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Debug;
 		};
@@ -364,9 +363,11 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = snJson/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "arm64 armv7 armv7s x86_64 i386";
 			};
 			name = Release;
 		};

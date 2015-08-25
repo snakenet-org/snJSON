@@ -8,100 +8,144 @@
 
 import UIKit
 
+/// Errors that can occur in the JSON Object
+enum JsonError: ErrorType {
+    case Unknown
+    case SyntaxError
+    case InvalidData
+    case InvalidType
+}
+
+/// A JSON Object. Each Object is also an Element in JSON
 public class JsonObject {
     public static let version = 3
     
-    private var mValid: Bool!
-    private var mError: NSError?
-    private var mData = Dictionary<String, JsonElement>()
+    // MARC - Public API / Members -
     
-    public struct JsonErrors {
-        static let Unknown: Int = -1
-        static let DataNotConvertable: Int = 1
-        static let JSONSyntaxError = 2
-        static let UnknownElementType = 3
+    /// Actual value of the Element, can be anything
+    public var val: AnyObject!
+    
+    /// Type of the element. Is defined in JsonElement.Types
+    public var type: Int!
+    
+    public var string: String?
+    public var int: Int?
+    public var double: Double?
+    public var array: NSArray?
+    public var dict: NSDictionary?
+    public var object: JsonObject?
+    
+    /// Element types
+    public struct Types{
+        // mostly for the value part of a pair or a value
+        // part of an Array or a Dict
+        public static let Unknown: Int = -1
+        public static let Integer: Int = 1
+        public static let String: Int = 2
+        public static let Double: Int = 3
+        public static let Array: Int = 4
+        public static let Dictionary: Int = 5
     }
     
+    // MARC: - Public API / Methods
+    
+    /// empty initializer
     public init(){
-        mValid = true
+        // do nothing
     }
     
-    public init(data: NSData){
-        serialize(data)
+    public init(data: NSData) throws {
+        do{
+            try serialize(data)
+        } catch let error as JsonError {
+            // rethrow from here
+            throw error
+        }
     }
     
-    public init(str: NSString){
+    public init(str: NSString) throws {
         // convert the NSString to NSData (for JSONObjectWithData, if that works, serialize the string
-        if let data = str.dataUsingEncoding(NSUTF8StringEncoding) {
-            serialize(data)
+        if let data: NSData = str.dataUsingEncoding(NSUTF8StringEncoding) {
+            do{
+                try serialize(data)
+            } catch let error as JsonError {
+                // rethrow from here
+                throw error
+            }
         }
         else{
-            mValid = false
-            mError = NSError(domain: "JsonObject", code: JsonErrors.DataNotConvertable, userInfo: nil)
+            // throw an invalid data error if dataUsingEncoding fails
+            throw JsonError.InvalidData
         }
     }
     
-    public init(obj: AnyObject?){
-        parse(obj)
+    public init(obj: AnyObject) throws {
+        do{
+            try parse(obj)
+        }
+        catch let error as JsonError {
+            throw error
+        }
     }
 
-    private func serialize(data: NSData){
-        var error:NSError?
+    private func serialize(data: NSData) throws {
         // get the data out of the NSString and serialize it correctly
         var jsonData: AnyObject?
+        
         do {
             jsonData = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers)
-        } catch let error1 as NSError {
-            error = error1
-            jsonData = nil
-        }
-            
-        if let anError = error {
-            // something went wrong!
-            mValid = false
-            mError = error
-        }
-        else{
-            parse(jsonData)
-        }
-    }
-    
-    private func parse(jsonData: AnyObject?){
-        if let jsonArr = jsonData as? NSArray {
-            // data was an array
-            mValid = true
-            
-            var counter: Int = 0
-            for element in jsonArr {
-                if( !catalogue(String(counter), val: element) ){
-                    mValid = false
-                    mError = NSError(domain: "JsonObject", code: JsonErrors.UnknownElementType, userInfo: nil)
-                    break
-                }
-                
-                counter++
-            }
+        } catch {
+            throw JsonError.SyntaxError
         }
         
-        if let jsonDict = jsonData as? NSDictionary {
-            // data is a dict
-            mValid = true
-            
-            for(key, val) in jsonDict {
-                // we can safely assume that key will always be a String
-                if( !catalogue(key as! String, val: val) ){
-                    mValid = false
-                    mError = NSError(domain: "JsonObject", code: JsonErrors.UnknownElementType, userInfo: nil)
-                    break
-                }
-            }
+        // if everything went good, parse the JSON Data
+        do{
+            try parse(jsonData)
+        }
+        catch let error as JsonError {
+            throw error
         }
     }
     
-    // catalogue a key/value pair into mData
-    private func catalogue(key: String, val: AnyObject) -> Bool{
-        mData[key] = JsonElement(val: val)
-        return mData[key]!.valid
+    private func parse(val: AnyObject?) throws {
+        self.val = val
+        self.type = Types.Unknown
+        
+        if let _ = val as? Int {
+            type = Types.Integer
+            self.int = (val as! Int)
+            
+            // while we are at it, convert the int also to a string
+            self.string = String( val as! Int )
+        }
+        
+        if let _ = val as? Double {
+            type = Types.Double
+            self.double = (val as! Double)
+            
+            // save the same as a string value es well
+            self.string = String( stringInterpolationSegment: val as! Double)
+        }
+        
+        if let _ = val as? String {
+            type = Types.String
+            self.string = (val as! String)
+        }
+        
+        if let _ = val as? NSArray {
+            type = Types.Array
+            self.array = (val as! NSArray)
+        }
+        
+        if let _ = val as? NSDictionary {
+            type = Types.Dictionary
+            self.dict = (val as! NSDictionary)
+        }
+        
+        // check if a type was assigned or not
+        if( self.type == Types.Unknown ){
+            throw JsonError.InvalidType
+        }
     }
     
     public func getJsonArray() -> Dictionary<String, AnyObject>{
@@ -109,10 +153,10 @@ public class JsonObject {
         
         for( key, val ) in mData {
             if val.type == JsonElement.Types.Dictionary {
-                jsonArray[key] = val.object!.getJsonArray()
+                jsonArray[key] = val.getJsonArray()
             }
             else if val.type == JsonElement.Types.Array {
-                jsonArray[key] = val.object!.getJsonArray()
+                jsonArray[key] = val.getJsonArray()
             }
             else{
                 jsonArray[key] = val.val
@@ -137,7 +181,7 @@ public class JsonObject {
         return jsonString
     }
     
-    public subscript(key: String) -> JsonElement? {
+    public subscript(key: String) -> JsonObject? {
         get{
             return mData[key]
         }
@@ -153,7 +197,7 @@ public class JsonObject {
         }
     }
     
-    public func get(key: String) -> JsonElement? {
+    public func get(key: String) -> JsonObject? {
         return mData[key]
     }
     
