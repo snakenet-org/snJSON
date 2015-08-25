@@ -167,6 +167,8 @@
 		DF72E1E31B4E6E2D004C95BC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = snakeNet.org;
 				TargetAttributes = {

@@ -48,7 +48,13 @@ public class JsonObject {
     private func serialize(data: NSData){
         var error:NSError?
         // get the data out of the NSString and serialize it correctly
-        var jsonData: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: &error)
+        var jsonData: AnyObject?
+        do {
+            jsonData = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers)
+        } catch let error1 as NSError {
+            error = error1
+            jsonData = nil
+        }
             
         if let anError = error {
             // something went wrong!
@@ -118,10 +124,10 @@ public class JsonObject {
     
     public func getJsonString() -> String {
         var jsonString: String = String()
-        var jsonArray = getJsonArray()
+        let jsonArray = getJsonArray()
         
         if NSJSONSerialization.isValidJSONObject(jsonArray) {
-            if let data = NSJSONSerialization.dataWithJSONObject(jsonArray, options: NSJSONWritingOptions.PrettyPrinted, error: nil) {
+            if let data = try? NSJSONSerialization.dataWithJSONObject(jsonArray, options: NSJSONWritingOptions.PrettyPrinted) {
                 if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
                     jsonString = string as String
                 }

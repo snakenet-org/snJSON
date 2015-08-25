@@ -30,7 +30,7 @@ public class JsonService: NSObject {
             }
             else{
                 // Transform the reply data directly into a JsonObject
-                var jMsg = JsonObject(data: data)
+                var jMsg = JsonObject(data: data!)
                 if( jMsg.isValid() ){
                     success(jMsg)
                 }
