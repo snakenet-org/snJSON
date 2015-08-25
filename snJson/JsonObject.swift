@@ -9,7 +9,7 @@
 import UIKit
 
 public class JsonObject {
-    public static let version = 2
+    public static let version = 3
     
     private var mValid: Bool!
     private var mError: NSError?
