@@ -96,7 +96,6 @@ snJson also comes with a very simple networking interface. You can make HTTP req
     // in one of your functions
 
     JsonService.request("https://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1", success: didReceiveData)
-*/
 ````
 
 ````swift
