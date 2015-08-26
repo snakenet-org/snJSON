@@ -22,18 +22,12 @@ public class JsonObject {
     
     // MARC - Public API / Members -
     
-    /// Actual value of the Element, can be anything
-    public var val: AnyObject!
-    
     /// Type of the element. Is defined in JsonElement.Types
     public var type: Int!
     
     public var string: String?
     public var int: Int?
     public var double: Double?
-    public var array: NSArray?
-    public var dict: NSDictionary?
-    public var object: JsonObject?
     
     /// Element types
     public struct Types{
@@ -46,6 +40,9 @@ public class JsonObject {
         public static let Array: Int = 4
         public static let Dictionary: Int = 5
     }
+    
+    // MARC: - Privates
+    private var mData = Dictionary<String, JsonObject>()
     
     // MARC: - Public API / Methods
     
@@ -108,7 +105,6 @@ public class JsonObject {
     }
     
     private func parse(val: AnyObject?) throws {
-        self.val = val
         self.type = Types.Unknown
         
         if let _ = val as? Int {
@@ -132,14 +128,31 @@ public class JsonObject {
             self.string = (val as! String)
         }
         
-        if let _ = val as? NSArray {
+        if let vArr: NSArray = val as? NSArray {
             type = Types.Array
-            self.array = (val as! NSArray)
+            
+            var count: Int = 0
+            for vl in vArr {
+                do{
+                    try set("\(count)", val: vl)
+                }
+                catch let error as JsonError{
+                    throw error
+                }
+                count++
+            }
         }
         
-        if let _ = val as? NSDictionary {
+        if let vDict = val as? NSDictionary {
             type = Types.Dictionary
-            self.dict = (val as! NSDictionary)
+            for (key, val) in vDict {
+                do{
+                    try set(key as! String, val: val)
+                }
+                catch let error as JsonError{
+                    throw error
+                }
+            }
         }
         
         // check if a type was assigned or not
@@ -152,14 +165,21 @@ public class JsonObject {
         var jsonArray = Dictionary<String, AnyObject>()
         
         for( key, val ) in mData {
-            if val.type == JsonElement.Types.Dictionary {
+            switch( val.type ){
+            case Types.Array,Types.Dictionary:
                 jsonArray[key] = val.getJsonArray()
-            }
-            else if val.type == JsonElement.Types.Array {
-                jsonArray[key] = val.getJsonArray()
-            }
-            else{
-                jsonArray[key] = val.val
+                
+            case Types.String:
+                jsonArray[key] = val.string
+                
+            case Types.Integer:
+                jsonArray[key] = val.int
+                
+            case Types.Double:
+                jsonArray[key] = val.double
+                
+            default:
+                print("Error, default in getJsonArray")
             }
         }
         
@@ -180,20 +200,25 @@ public class JsonObject {
         
         return jsonString
     }
-    
-    public subscript(key: String) -> JsonObject? {
+
+    public subscript(key: String) -> AnyObject? {
         get{
             return mData[key]
         }
-    }
-
-    public subscript(key: String) -> AnyObject? {
-        get {
-            return mData[key]?.val
-        }
         
         set(val){
-            set(key, val: val!)
+            do{
+                try set(key, val: val!)
+            } catch {
+                // MARK :- This might be better to throw as well??
+                print("Error, could not set value")
+            }
+        }
+    }
+    
+    public subscript(key: String) -> JsonObject? {
+        get {
+            return mData[key]
         }
     }
     
@@ -201,15 +226,12 @@ public class JsonObject {
         return mData[key]
     }
     
-    public func getError() -> NSError? {
-        return mError
-    }
-    
-    public func set(key: String, val: AnyObject){
-        mData[key] = JsonElement(val: val)
-    }
-    
-    public func isValid() -> Bool {
-        return mValid
+    public func set(key: String, val: AnyObject) throws {
+        do{
+            mData[key] = try JsonObject(obj: val)
+        }
+        catch let error as JsonError{
+            throw error
+        }
     }
 }
