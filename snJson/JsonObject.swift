@@ -9,18 +9,20 @@
 import UIKit
 
 /// Errors that can occur in the JSON Object
-enum JsonError: ErrorType {
+public enum JsonError: ErrorType {
     case Unknown
     case SyntaxError
     case InvalidData
     case InvalidType
+    case IndexNotFound
+    case NetworkError
 }
 
 /// A JSON Object. Each Object is also an Element in JSON
 public class JsonObject {
     public static let version = 3
     
-    // MARC - Public API / Members -
+    // MARK: - Public API / Members -
     
     /// Type of the element. Is defined in JsonElement.Types
     public var type: Int!
@@ -41,14 +43,17 @@ public class JsonObject {
         public static let Dictionary: Int = 5
     }
     
-    // MARC: - Privates
+    // MARK: - Privates
     private var mData = Dictionary<String, JsonObject>()
     
-    // MARC: - Public API / Methods
+    // MARK: - Public API / Methods
     
     /// empty initializer
     public init(){
-        // do nothing
+        // every initial object is always a dict.
+        self.type = Types.Dictionary
+        
+        // MARK: - Maybe change this in the future?
     }
     
     public init(data: NSData) throws {
@@ -161,22 +166,25 @@ public class JsonObject {
         }
     }
     
-    public func getJsonArray() -> Dictionary<String, AnyObject>{
-        var jsonArray = Dictionary<String, AnyObject>()
+    private func getJsonArray() -> Array<AnyObject> {
+        var jsonArray = Array<AnyObject>()
         
-        for( key, val ) in mData {
+        for( _, val ) in mData {
             switch( val.type ){
-            case Types.Array,Types.Dictionary:
-                jsonArray[key] = val.getJsonArray()
-                
-            case Types.String:
-                jsonArray[key] = val.string
-                
-            case Types.Integer:
-                jsonArray[key] = val.int
+            case Types.Array:
+                jsonArray.append( val.getJsonArray() )
+            
+            case Types.Dictionary:
+                jsonArray.append( val.getJsonDict() )
                 
             case Types.Double:
-                jsonArray[key] = val.double
+                jsonArray.append( val.double! )
+                
+            case Types.String:
+                jsonArray.append( val.string! )
+                
+            case Types.Integer:
+                jsonArray.append( val.int! )
                 
             default:
                 print("Error, default in getJsonArray")
@@ -186,14 +194,56 @@ public class JsonObject {
         return jsonArray
     }
     
+    private func getJsonDict() -> Dictionary<String, AnyObject>{
+        var jsonDict = Dictionary<String, AnyObject>()
+        
+        for( key, val ) in mData {
+            switch( val.type ){
+            case Types.Array:
+                jsonDict[key] = val.getJsonArray()
+
+            case Types.Dictionary:
+                jsonDict[key] = val.getJsonDict()
+
+            case Types.String:
+                jsonDict[key] = val.string
+                
+            case Types.Integer:
+                jsonDict[key] = val.int
+                
+            case Types.Double:
+                jsonDict[key] = val.double
+                
+            default:
+                print("Error, default in getJsonDict")
+            }
+        }
+        
+        return jsonDict
+    }
+    
     public func getJsonString() -> String {
         var jsonString: String = String()
-        let jsonArray = getJsonArray()
-        
-        if NSJSONSerialization.isValidJSONObject(jsonArray) {
-            if let data = try? NSJSONSerialization.dataWithJSONObject(jsonArray, options: NSJSONWritingOptions.PrettyPrinted) {
-                if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
-                    jsonString = string as String
+        // just define the start point according to the type of this object
+        if( type == Types.Array ){
+            let jsonArray = getJsonArray()
+            
+            if NSJSONSerialization.isValidJSONObject(jsonArray) {
+                if let data = try? NSJSONSerialization.dataWithJSONObject(jsonArray, options: NSJSONWritingOptions.PrettyPrinted) {
+                    if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
+                        jsonString = string as String
+                    }
+                }
+            }
+        }
+        else{
+            let jsonDict = getJsonDict()
+            
+            if NSJSONSerialization.isValidJSONObject(jsonDict) {
+                if let data = try? NSJSONSerialization.dataWithJSONObject(jsonDict, options: NSJSONWritingOptions.PrettyPrinted) {
+                    if let string = NSString(data: data, encoding: NSUTF8StringEncoding) {
+                        jsonString = string as String
+                    }
                 }
             }
         }
@@ -201,9 +251,9 @@ public class JsonObject {
         return jsonString
     }
 
-    public subscript(key: String) -> AnyObject? {
+    public subscript(key: AnyObject) -> AnyObject? {
         get{
-            return mData[key]
+            return get(key)
         }
         
         set(val){
@@ -216,19 +266,25 @@ public class JsonObject {
         }
     }
     
-    public subscript(key: String) -> JsonObject? {
-        get {
-            return mData[key]
+    public subscript(key: AnyObject) -> JsonObject? {
+        return get(key)
+    }
+    
+    public func get(key: AnyObject) -> JsonObject? {
+        let empty: JsonObject? = nil
+        
+        guard let data: JsonObject = mData["\(key)"] else {
+            // return nil if this key does not exist
+            print("JsonObject [get] - Data not found")
+            return empty
         }
+        
+        return data
     }
     
-    public func get(key: String) -> JsonObject? {
-        return mData[key]
-    }
-    
-    public func set(key: String, val: AnyObject) throws {
+    public func set(key: AnyObject, val: AnyObject) throws {
         do{
-            mData[key] = try JsonObject(obj: val)
+            mData["\(key)"] = try JsonObject(obj: val)
         }
         catch let error as JsonError{
             throw error

@@ -8,34 +8,25 @@
 
 import UIKit
 
-public class JsonService: NSObject {
-    
-    // simple construct.
-    public override init() {
-        super.init()
-    }
-    
+public class JsonService {
     // the request function that uses the NSURL Shared Session to make a very simple HTTP request
-    public func request(url:String, success: ((JsonObject)->()), error: ((NSError?)->())? ) {
+    public static func request(url:String, success: ((JsonObject)->()) ) {
         let nsURL = NSURL(string: url)
         
         // run the session in a new task
-        let task = NSURLSession.sharedSession().dataTaskWithURL(nsURL!) {
-            (data,response,err) in
-            let err: NSError? = err
+        let task = NSURLSession.sharedSession().dataTaskWithURL(nsURL!) { (data: NSData? ,response: NSURLResponse? , error: NSError?) -> Void in
             
-            if let _ = err {
+            if let _ = error {
                 // if error wasn't nil return the NSError
-                error?(err)
+                print("Network Error: \(error)")
             }
             else{
                 // Transform the reply data directly into a JsonObject
                 do{
                     let jMsg = try JsonObject(data: data!)
                     success(jMsg)
-                }
-                catch{
-                    
+                } catch {
+                    print("Invalid Data")
                 }
             }
         }
