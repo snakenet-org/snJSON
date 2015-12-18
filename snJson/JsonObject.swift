@@ -30,6 +30,8 @@ public class JsonObject {
     public var string: String?
     public var int: Int?
     public var double: Double?
+    public var dict: NSDictionary?
+    public var array: NSArray?
     
     /// Element types
     public struct Types{
@@ -146,6 +148,8 @@ public class JsonObject {
                 }
                 count++
             }
+            
+            self.array = vArr
         }
         
         if let vDict = val as? NSDictionary {
@@ -158,6 +162,8 @@ public class JsonObject {
                     throw error
                 }
             }
+            
+            self.dict = vDict
         }
         
         // check if a type was assigned or not
@@ -289,9 +295,5 @@ public class JsonObject {
         catch let error as JsonError{
             throw error
         }
-    }
-    
-    public func asDict() -> NSDictionary {
-        return mData
     }
 }
