@@ -290,4 +290,8 @@ public class JsonObject {
             throw error
         }
     }
+    
+    public func asDict() -> NSDictionary {
+        return mData
+    }
 }
